@@ -6,7 +6,7 @@ let areas;
 
 // areaFactory
 function areaFactory(areaId, description) {
-  const allAreas = JSON.parse(localStorage.getItem(LOCAL_STORAGE_AREAS_KEY));
+  let allAreas = JSON.parse(localStorage.getItem(LOCAL_STORAGE_AREAS_KEY));
 
   let slug = `${description.split(" ").join("-")}`.toLowerCase();
 
@@ -16,6 +16,7 @@ function areaFactory(areaId, description) {
     .join("-")}`.toLowerCase();
 
   // check if the new uniqueSlug already exists in allAreas
+  allAreas=allAreas==null?[]:allAreas
   let existing = allAreas.find((area) => area.uniqueSlug === uniqueSlug);
 
   // if uniqueSlugalready exists, add a postfix to make it unique
@@ -45,14 +46,15 @@ export const getAreas = () => {
 
 export function addArea(description) {
   console.log(`description = ${description}`);
-  const retrievedAreas = JSON.parse(
+  let retrievedAreas = JSON.parse(
     localStorage.getItem(LOCAL_STORAGE_AREAS_KEY)
   );
 
   let splitDescription = description.split("/");
   let areaCodePrefix = splitDescription[0];
   let slug = splitDescription[1];
-
+  
+  retrievedAreas=retrievedAreas==null?[]:retrievedAreas
   const areaCodesWithSamePrefix = retrievedAreas
     .map(({ areaId }) => {
       const [retrievedAreaCodePrefix, retrievedAreaCodeSequentialNumber] =
@@ -66,7 +68,7 @@ export function addArea(description) {
       ({ retrievedAreaCodePrefix }) =>
         areaCodePrefix === retrievedAreaCodePrefix
     );
-
+console.log(areaCodesWithSamePrefix)
   let maxSequentialNumber = Math.max(
     ...areaCodesWithSamePrefix.map(
       ({ retrievedAreaCodeSequentialNumber }) =>
@@ -152,6 +154,7 @@ export const getProjects = () => {
 const handleCheckboxChange = (event) => {
   console.log(`checkbox has changed status: ${event}`);
   let allAreas = getAreas();
+  allAreas=allAreas==null?[]:allAreas
   const modifiedAreas = allAreas.map((area) =>
     area.uniqueSlug === event.id ? { ...area, pinned: event.checked } : area
   );
@@ -174,6 +177,7 @@ pubsub.on("CheckboxChanged", handleCheckboxChange);
 
 (function () {
   let allAreas = JSON.parse(localStorage.getItem(LOCAL_STORAGE_AREAS_KEY));
+  allAreas=allAreas==null?[]:allAreas
   allAreas = allAreas.map((element) => {
     return areaFactory(element.areaId, element.description);
   });
